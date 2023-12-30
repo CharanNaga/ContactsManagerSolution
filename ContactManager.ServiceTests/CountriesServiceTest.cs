@@ -2,8 +2,6 @@
 using ServiceContracts.DTO;
 using Entities;
 using Services;
-using Microsoft.EntityFrameworkCore;
-using EntityFrameworkCoreMock;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
