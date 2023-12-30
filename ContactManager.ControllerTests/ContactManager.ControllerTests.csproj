@@ -25,4 +25,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ContactManager.UI\ContactManager.UI.csproj" />
+  </ItemGroup>
+
 </Project>
