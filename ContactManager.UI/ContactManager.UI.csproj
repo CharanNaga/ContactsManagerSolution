@@ -24,5 +24,8 @@
     <ProjectReference Include="..\ContactManager.Core\ContactManager.Core.csproj" />
     <ProjectReference Include="..\ContactManager.Infrastructure\ContactManager.Infrastructure.csproj" />
   </ItemGroup>
+	<ItemGroup>
+		<InternalsVisibleTo Include="ContactManager.IntegrationTests"/>
+	</ItemGroup>
 
 </Project>
