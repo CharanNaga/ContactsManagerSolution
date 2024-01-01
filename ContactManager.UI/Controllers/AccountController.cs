@@ -35,7 +35,7 @@ namespace ContactManager.UI.Controllers
                 PersonName = registerDTO.PersonName,
                 PhoneNumber = registerDTO.Phone
             };
-            IdentityResult result = await _userManager.CreateAsync(user);
+            IdentityResult result = await _userManager.CreateAsync(user,registerDTO.Password);
             if(result.Succeeded)
             {
                 return RedirectToAction(nameof(PersonsController.Index), "Persons");
