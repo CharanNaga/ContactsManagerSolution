@@ -68,7 +68,15 @@ namespace CRUDExample
             services.AddTransient<PersonsListActionFilter>();
 
             //adding Identity as a service to IoC container
-            services.AddIdentity<ApplicationUser, ApplicationRole>() //for creating users, roles tables
+            services.AddIdentity<ApplicationUser, ApplicationRole>(options =>  //for creating users, roles tables
+            {
+                options.Password.RequiredLength = 5; //min length of password is 5 chars
+                options.Password.RequireNonAlphanumeric = false; //may or mayn't contain atleast one non alphanumeric value
+                options.Password.RequireUppercase = false; //may or mayn't contain atleast one uppercase letter
+                options.Password.RequireLowercase = true; //must and should contain atleast one lowercase letter
+                options.Password.RequireDigit = false; //may or mayn't contain atleast one digit
+                options.Password.RequiredUniqueChars = 3; //Contain atleast 3 distinct chars. Eg:- CH123CH contains 5 distinct chars 'C','H','1','2','3'
+            }) 
                 .AddEntityFrameworkStores<ApplicationDbContext>()  //creating tables using IdentityDbContext overall in entire application
                 .AddDefaultTokenProviders() //Generating tokens at runtime randomly while Email & phone number verifications, forgot or resetting passwords
                 .AddUserStore<
