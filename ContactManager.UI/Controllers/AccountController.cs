@@ -26,9 +26,10 @@ namespace ContactManager.UI.Controllers
         public async Task<IActionResult> Register(RegisterDTO registerDTO)
         {
             //Store User Registration Details into Identity DB
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                ViewBag.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x=>x.ErrorMessage).ToList();
+                ViewBag.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                return View(registerDTO);
             }
             ApplicationUser user = new ApplicationUser()
             {
@@ -37,8 +38,8 @@ namespace ContactManager.UI.Controllers
                 PersonName = registerDTO.PersonName,
                 PhoneNumber = registerDTO.Phone
             };
-            IdentityResult result = await _userManager.CreateAsync(user,registerDTO.Password);
-            if(result.Succeeded)
+            IdentityResult result = await _userManager.CreateAsync(user, registerDTO.Password);
+            if (result.Succeeded)
             {
                 //sign-in
                 await _signInManager.SignInAsync(user, isPersistent: false);
@@ -46,12 +47,44 @@ namespace ContactManager.UI.Controllers
             }
             else
             {
-                foreach(var error in result.Errors)
+                foreach (var error in result.Errors)
                 {
-                    ModelState.AddModelError("Register",error.Description);
+                    ModelState.AddModelError("Register", error.Description);
                 }
                 return View(registerDTO);
             }
+        }
+
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginDTO loginDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                return View(loginDTO);
+            }
+            var result = await _signInManager.PasswordSignInAsync(
+                loginDTO.Email, loginDTO.Password, isPersistent: false, lockoutOnFailure: false
+                ); //This method communicates with Db and check if there is atleast one row matching with the entered credentials are present in Db.
+            //If present, then it adds an identity cookie to the request indicating it is authenticated
+            if (result.Succeeded)
+            {
+                return RedirectToAction(nameof(PersonsController.Index), "Persons");
+            }
+            ModelState.AddModelError("Login", "Invalid Email or Password");
+            return View(loginDTO);
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync(); //removing identity cookie by calling SignOutAsync()
+            return RedirectToAction(nameof(PersonsController.Index), "Persons");
         }
     }
 }
