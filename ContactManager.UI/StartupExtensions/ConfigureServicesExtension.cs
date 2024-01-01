@@ -1,6 +1,9 @@
-﻿using CRUDExample.Filters.ActionFilters;
+﻿using ContactManager.Core.Domain.IdentityEntities;
+using CRUDExample.Filters.ActionFilters;
 using Entities;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Repositories;
 using RepositoryContracts;
@@ -63,6 +66,17 @@ namespace CRUDExample
 
             //adding PersonsListActionFilter as a service
             services.AddTransient<PersonsListActionFilter>();
+
+            //adding Identity as a service to IoC container
+            services.AddIdentity<ApplicationUser, ApplicationRole>() //for creating users, roles tables
+                .AddEntityFrameworkStores<ApplicationDbContext>()  //creating tables using IdentityDbContext overall in entire application
+                .AddDefaultTokenProviders() //Generating tokens at runtime randomly while Email & phone number verifications, forgot or resetting passwords
+                .AddUserStore<
+                    UserStore<ApplicationUser,ApplicationRole,ApplicationDbContext,Guid>
+                    >()  //configuring repository layer for users table i.e., users store
+                .AddRoleStore<
+                    RoleStore<ApplicationRole,ApplicationDbContext,Guid>    
+                    >(); //configuring repository layer for roles table i.e., roles store
 
             //adding HttpLogging as a service
             services.AddHttpLogging(options =>
