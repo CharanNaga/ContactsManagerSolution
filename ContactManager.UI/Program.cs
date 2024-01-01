@@ -35,8 +35,12 @@ if (app.Environment.IsEnvironment("Test") == false)
     RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath: "Rotativa");
 
 app.UseStaticFiles();
-app.UseRouting();
-app.MapControllers();
+
+//Responsible for reading Identity Cookie information
+app.UseAuthentication(); //when we make request to app pipeline, if a user is already logged in (identity cookie already present in browser).. that cookie automatically submitted to server as part of request.cookies then this authentication will read that particular cookie & extract user details like UserID & UserName
+
+app.UseRouting(); //Identifying Action method based route
+app.MapControllers(); //Execute filter pipeline (action methods + filters)
 
 app.Run();
 
