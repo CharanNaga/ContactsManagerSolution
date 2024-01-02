@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace ContactManager.Core.DTO
 
         [Required(ErrorMessage = "Email can't be blank")]
         [EmailAddress(ErrorMessage ="Email address should be in valid format")]
+        [Remote(action: "IsEmailAlreadyRegistered", controller: "Account", ErrorMessage ="Email already exists")] //this will dynamically add JS script validation at the email box.
         public string Email {  get; set; }
 
         [Required(ErrorMessage = "Phone can't be blank")]
