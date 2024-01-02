@@ -51,7 +51,7 @@ namespace ContactManager.UI.Controllers
                     //Create 'Admin' role
                     string adminUserType = UserTypeOptions.Admin.ToString();
                     var adminUser = await _roleManager.FindByNameAsync(adminUserType);
-                    if(adminUser != null)
+                    if(adminUser == null)
                     {
                         ApplicationRole applicationRole = new ApplicationRole()
                         {
@@ -103,6 +103,15 @@ namespace ContactManager.UI.Controllers
 
             if (result.Succeeded)
             {
+                //Admin
+                ApplicationUser user = await _userManager.FindByEmailAsync(loginDTO.Email);
+                if(user != null)
+                {
+                    if(await _userManager.IsInRoleAsync(user, UserTypeOptions.Admin.ToString()))
+                    {
+                        return RedirectToAction("Index", "Home", new { area = "Admin" });
+                    }
+                }
                 if(!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
                 {
                     return LocalRedirect(ReturnUrl);
