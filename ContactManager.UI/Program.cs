@@ -26,7 +26,8 @@ else
     app.UseExceptionHandler("/Error"); //builtin exceptional handler
     app.UseExceptionHandlingMiddleware();
 }
-    
+app.UseHsts(); //Http Strict Transport Security to enable https both in client & server side
+app.UseHttpsRedirection(); //configuring HTTPS for establishing secured connection b/w Server & Client    
 
 app.UseHttpLogging(); //added HttpLogging to the middleware pipeline
 
