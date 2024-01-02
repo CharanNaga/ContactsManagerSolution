@@ -77,6 +77,22 @@
             </div>
         </div>
 
+        @*User Type*@
+        <div class="form-field flex">
+            <div class="w-25">
+                <label asp-for="UserType" class="form-label pt">User Type</label>
+            </div>
+            <div class="flex-1">
+                <input type="radio" id="User" value="User" asp-for="UserType" checked/>
+                <label for="User">User</label>
+
+                <input type="radio" id="Admin" value="Admin" asp-for="UserType" />
+                <label for="Admin">Admin</label>
+
+                <span asp-validation-for="UserType" class="text-red"></span>
+            </div>
+        </div>
+
         @*Register Button*@
         <div class="form-field flex">
             <div class="w-25"></div>
