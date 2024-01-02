@@ -1,6 +1,7 @@
 ﻿using ContactManager.Core.Domain.IdentityEntities;
 using CRUDExample.Filters.ActionFilters;
 using Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -57,15 +58,15 @@ namespace CRUDExample
             services.AddScoped<IPersonsDeleterService, PersonsDeleterService>();
             services.AddScoped<IPersonsSorterService, PersonsSorterService>();
 
+            //adding PersonsListActionFilter as a service
+            services.AddTransient<PersonsListActionFilter>();
+
             //adding DbContext as a service
             services.AddDbContext<ApplicationDbContext>( //by default scoped service.
                 options =>
                 {
                     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
                 });
-
-            //adding PersonsListActionFilter as a service
-            services.AddTransient<PersonsListActionFilter>();
 
             //adding Identity as a service to IoC container
             services.AddIdentity<ApplicationUser, ApplicationRole>(options =>  //for creating users, roles tables
@@ -85,6 +86,21 @@ namespace CRUDExample
                 .AddRoleStore<
                     RoleStore<ApplicationRole,ApplicationDbContext,Guid>    
                     >(); //configuring repository layer for roles table i.e., roles store
+
+            //adding Authorization as a service
+            services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+                //places Authorization Policy (authorization filter) for all the action methods. So that user should submit Identity cookie to browser
+            });
+
+            //if identity cookie isn't submitted, then redirect to Login Page
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+            });
 
             //adding HttpLogging as a service
             services.AddHttpLogging(options =>
