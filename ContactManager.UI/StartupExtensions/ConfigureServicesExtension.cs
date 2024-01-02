@@ -1,6 +1,11 @@
-﻿using CRUDExample.Filters.ActionFilters;
+﻿using ContactManager.Core.Domain.IdentityEntities;
+using CRUDExample.Filters.ActionFilters;
 using Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repositories;
 using RepositoryContracts;
@@ -31,6 +36,7 @@ namespace CRUDExample
                     Value = "CustomValue-FromGlobal",
                     Order = 2
                 });
+                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()); //Automatically enable ValidateAntiForgeryToken for all post action methods
             });
 
             services.AddScoped<ICountriesRepository, CountriesRepository>();
@@ -54,6 +60,9 @@ namespace CRUDExample
             services.AddScoped<IPersonsDeleterService, PersonsDeleterService>();
             services.AddScoped<IPersonsSorterService, PersonsSorterService>();
 
+            //adding PersonsListActionFilter as a service
+            services.AddTransient<PersonsListActionFilter>();
+
             //adding DbContext as a service
             services.AddDbContext<ApplicationDbContext>( //by default scoped service.
                 options =>
@@ -61,8 +70,47 @@ namespace CRUDExample
                     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
                 });
 
-            //adding PersonsListActionFilter as a service
-            services.AddTransient<PersonsListActionFilter>();
+            //adding Identity as a service to IoC container
+            services.AddIdentity<ApplicationUser, ApplicationRole>(options =>  //for creating users, roles tables
+            {
+                options.Password.RequiredLength = 5; //min length of password is 5 chars
+                options.Password.RequireNonAlphanumeric = false; //may or mayn't contain atleast one non alphanumeric value
+                options.Password.RequireUppercase = false; //may or mayn't contain atleast one uppercase letter
+                options.Password.RequireLowercase = true; //must and should contain atleast one lowercase letter
+                options.Password.RequireDigit = false; //may or mayn't contain atleast one digit
+                options.Password.RequiredUniqueChars = 3; //Contain atleast 3 distinct chars. Eg:- CH123CH contains 5 distinct chars 'C','H','1','2','3'
+            }) 
+                .AddEntityFrameworkStores<ApplicationDbContext>()  //creating tables using IdentityDbContext overall in entire application
+                .AddDefaultTokenProviders() //Generating tokens at runtime randomly while Email & phone number verifications, forgot or resetting passwords
+                .AddUserStore<
+                    UserStore<ApplicationUser,ApplicationRole,ApplicationDbContext,Guid>
+                    >()  //configuring repository layer for users table i.e., users store
+                .AddRoleStore<
+                    RoleStore<ApplicationRole,ApplicationDbContext,Guid>    
+                    >(); //configuring repository layer for roles table i.e., roles store
+
+            //adding Authorization as a service
+            services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+                //places Authorization Policy (authorization filter) for all the action methods. So that user should submit Identity cookie to browser
+
+                //Adding Custom Policy
+                options.AddPolicy("NotAuthorized", policy =>
+                {
+                    policy.RequireAssertion(context => {
+                        return !context.User.Identity.IsAuthenticated;
+                    });
+                });
+            });
+
+            //if identity cookie isn't submitted, then redirect to Login Page
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+            });
 
             //adding HttpLogging as a service
             services.AddHttpLogging(options =>

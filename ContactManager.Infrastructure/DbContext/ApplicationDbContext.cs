@@ -1,4 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using ContactManager.Core.Domain.IdentityEntities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,7 +11,8 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
-    public class ApplicationDbContext:DbContext
+    //public class ApplicationDbContext:DbContext
+    public class ApplicationDbContext:IdentityDbContext<ApplicationUser,ApplicationRole,Guid> //For DbContext we need to set manual DbSets for creating tables in our DB. But IdentityDbContext offers automatic creation of Users, Roles Tables & mapping between them as well.
     {
         public ApplicationDbContext(DbContextOptions options):base(options)
         {

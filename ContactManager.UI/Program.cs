@@ -26,7 +26,8 @@ else
     app.UseExceptionHandler("/Error"); //builtin exceptional handler
     app.UseExceptionHandlingMiddleware();
 }
-    
+app.UseHsts(); //Http Strict Transport Security to enable https both in client & server side
+app.UseHttpsRedirection(); //configuring HTTPS for establishing secured connection b/w Server & Client    
 
 app.UseHttpLogging(); //added HttpLogging to the middleware pipeline
 
@@ -35,8 +36,26 @@ if (app.Environment.IsEnvironment("Test") == false)
     RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath: "Rotativa");
 
 app.UseStaticFiles();
-app.UseRouting();
-app.MapControllers();
+
+app.UseRouting(); //Identifying Action method based route
+//Responsible for reading Identity Cookie information
+app.UseAuthentication(); //when we make request to app pipeline, if a user is already logged in (identity cookie already present in browser).. that cookie automatically submitted to server as part of request.cookies then this authentication will read that particular cookie & extract user details like UserID & UserName
+app.UseAuthorization(); //Validates access permissions of the user.
+app.MapControllers(); //Execute filter pipeline (action methods + filters)
+
+//Using Conventional Routing Middleware
+app.UseEndpoints(endpoints => 
+{
+    endpoints.MapControllerRoute(
+        name: "areas",
+        pattern: "{area:exists}/{controller=Home}/{action=Index}" //Eg: Admin/Home/Index equivalent to just /Admin
+        );
+
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller}/{action}/{id?}"
+        );
+});
 
 app.Run();
 
