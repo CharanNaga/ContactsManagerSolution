@@ -1,12 +1,14 @@
 ﻿using ContactManager.Core.Domain.IdentityEntities;
 using ContactManager.Core.DTO;
 using CRUDExample.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContactManager.UI.Controllers
 {
     [Route("[controller]/[action]")]
+    [AllowAnonymous] //all the action methods if this controller are able to open even without login
     public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
