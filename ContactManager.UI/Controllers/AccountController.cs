@@ -31,6 +31,7 @@ namespace ContactManager.UI.Controllers
         }
         [HttpPost]
         [Authorize("NotAuthorized")] //custom authorization policy for not navigating to any of the action methods with this annotation, only when user is logged in. i.e., can't navigate to login or register page if one is already loggedin
+        //[ValidateAntiForgeryToken] //Protects from XSRF Sites
         public async Task<IActionResult> Register(RegisterDTO registerDTO)
         {
             //Store User Registration Details into Identity DB
@@ -67,7 +68,17 @@ namespace ContactManager.UI.Controllers
                 }
                 else
                 {
+                    //Create 'User' role
                     string userType = UserTypeOptions.User.ToString();
+                    var userRole = await _roleManager.FindByNameAsync(userType);
+                    if (userRole == null)
+                    {
+                        ApplicationRole applicationRole = new ApplicationRole()
+                        {
+                            Name = userType
+                        };
+                        await _roleManager.CreateAsync(applicationRole); //inserts new row in AspNetRoles table
+                    }
                     //Add newly created user into 'User' role
                     await _userManager.AddToRoleAsync(user, userType); //inserts new row in AspNetUserRoles table
                 }
@@ -133,7 +144,7 @@ namespace ContactManager.UI.Controllers
             await _signInManager.SignOutAsync(); //removing identity cookie by calling SignOutAsync()
             return RedirectToAction(nameof(PersonsController.Index), "Persons");
         }
-
+        [AllowAnonymous] //f commented this, it throws 401 error.
         public async Task<IActionResult> IsEmailAlreadyRegistered(string email)
         {
             var result = await _userManager.FindByEmailAsync(email);
