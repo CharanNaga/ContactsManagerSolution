@@ -9,7 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace ContactManager.UI.Controllers
 {
     //[Route("[controller]/[action]")] //Uncomment this if we don't choose for conventional routing
-    [AllowAnonymous] //all the action methods if this controller are able to open even without login
+    //[AllowAnonymous] //all the action methods if this controller are able to open even without login (from manual url type as well)
+    //comment AllowAnonymous when we create a new Authorization Policy
     public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -23,11 +24,13 @@ namespace ContactManager.UI.Controllers
             _roleManager = roleManager;
         }
         [HttpGet]
+        [Authorize("NotAuthorized")]
         public IActionResult Register()
         {
             return View();
         }
         [HttpPost]
+        [Authorize("NotAuthorized")] //custom authorization policy for not navigating to any of the action methods with this annotation, only when user is logged in. i.e., can't navigate to login or register page if one is already loggedin
         public async Task<IActionResult> Register(RegisterDTO registerDTO)
         {
             //Store User Registration Details into Identity DB
@@ -83,12 +86,14 @@ namespace ContactManager.UI.Controllers
         }
 
         [HttpGet]
+        [Authorize("NotAuthorized")]
         public IActionResult Login()
         {
             return View();
         }
 
         [HttpPost]
+        [Authorize("NotAuthorized")]
         public async Task<IActionResult> Login(LoginDTO loginDTO,string? ReturnUrl)
         {
             if (!ModelState.IsValid)
@@ -122,6 +127,7 @@ namespace ContactManager.UI.Controllers
             return View(loginDTO);
         }
 
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync(); //removing identity cookie by calling SignOutAsync()
