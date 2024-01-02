@@ -93,5 +93,18 @@ namespace ContactManager.UI.Controllers
             await _signInManager.SignOutAsync(); //removing identity cookie by calling SignOutAsync()
             return RedirectToAction(nameof(PersonsController.Index), "Persons");
         }
+
+        public async Task<IActionResult> IsEmailAlreadyRegistered(string email)
+        {
+            var result = await _userManager.FindByEmailAsync(email);
+            if(result != null)
+            {
+                return Json(false);
+            }
+            else
+            {
+                return Json(true);
+            }
+        }
     }
 }
