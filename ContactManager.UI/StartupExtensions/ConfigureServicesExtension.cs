@@ -94,6 +94,14 @@ namespace CRUDExample
                 .RequireAuthenticatedUser()
                 .Build();
                 //places Authorization Policy (authorization filter) for all the action methods. So that user should submit Identity cookie to browser
+
+                //Adding Custom Policy
+                options.AddPolicy("NotAuthorized", policy =>
+                {
+                    policy.RequireAssertion(context => {
+                        return !context.User.Identity.IsAuthenticated;
+                    });
+                });
             });
 
             //if identity cookie isn't submitted, then redirect to Login Page
