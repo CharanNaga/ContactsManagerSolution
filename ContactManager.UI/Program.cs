@@ -42,6 +42,15 @@ app.UseAuthentication(); //when we make request to app pipeline, if a user is al
 app.UseAuthorization(); //Validates access permissions of the user.
 app.MapControllers(); //Execute filter pipeline (action methods + filters)
 
+//Using Conventional Routing Middleware
+app.UseEndpoints(endpoints => 
+{
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller}/{action}/{id?}"
+        );
+});
+
 app.Run();
 
 public partial class Program { } //we can access automatic generated program class programatically anywhere in the application
