@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repositories;
 using RepositoryContracts;
@@ -35,6 +36,7 @@ namespace CRUDExample
                     Value = "CustomValue-FromGlobal",
                     Order = 2
                 });
+                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()); //Automatically enable ValidateAntiForgeryToken for all post action methods
             });
 
             services.AddScoped<ICountriesRepository, CountriesRepository>();
