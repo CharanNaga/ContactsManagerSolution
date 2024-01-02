@@ -46,6 +46,11 @@ app.MapControllers(); //Execute filter pipeline (action methods + filters)
 app.UseEndpoints(endpoints => 
 {
     endpoints.MapControllerRoute(
+        name: "areas",
+        pattern: "{area:exists}/{controller=Home}/{action=Index}" //Eg: Admin/Home/Index equivalent to just /Admin
+        );
+
+    endpoints.MapControllerRoute(
         name: "default",
         pattern: "{controller}/{action}/{id?}"
         );
