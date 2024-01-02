@@ -64,7 +64,7 @@ namespace ContactManager.UI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginDTO loginDTO)
+        public async Task<IActionResult> Login(LoginDTO loginDTO,string? ReturnUrl)
         {
             if (!ModelState.IsValid)
             {
@@ -75,8 +75,13 @@ namespace ContactManager.UI.Controllers
                 loginDTO.Email, loginDTO.Password, isPersistent: false, lockoutOnFailure: false
                 ); //This method communicates with Db and check if there is atleast one row matching with the entered credentials are present in Db.
             //If present, then it adds an identity cookie to the request indicating it is authenticated
+
             if (result.Succeeded)
             {
+                if(!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                {
+                    return LocalRedirect(ReturnUrl);
+                }
                 return RedirectToAction(nameof(PersonsController.Index), "Persons");
             }
             ModelState.AddModelError("Login", "Invalid Email or Password");
